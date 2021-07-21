@@ -1,0 +1,117 @@
+---
+title: "_LIFE EXPECTANCY VS GDP PER CAPITA OF 1960,1980,2000_"
+author: "_Nilosree Sengupta_"
+date: "_22/07/2021_"
+output: html_document
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# _Dataset used: Gapminder Dataset._ 
+
+
+
+```library("dslabs")
+data(package="dslabs")
+list.files(system.file("script", package = "dslabs"))
+```
+
+
+```
+##  [1] "make-admissions.R"                   
+##  [2] "make-brca.R"                         
+##  [3] "make-brexit_polls.R"                 
+##  [4] "make-death_prob.R"                   
+##  [5] "make-divorce_margarine.R"            
+##  [6] "make-gapminder-rdas.R"               
+##  [7] "make-greenhouse_gases.R"             
+##  [8] "make-historic_co2.R"                 
+##  [9] "make-mnist_27.R"                     
+## [10] "make-movielens.R"                    
+## [11] "make-murders-rda.R"                  
+## [12] "make-na_example-rda.R"               
+## [13] "make-nyc_regents_scores.R"           
+## [14] "make-olive.R"                        
+## [15] "make-outlier_example.R"              
+## [16] "make-polls_2008.R"                   
+## [17] "make-polls_us_election_2016.R"       
+## [18] "make-reported_heights-rda.R"         
+## [19] "make-research_funding_rates.R"       
+## [20] "make-stars.R"                        
+## [21] "make-temp_carbon.R"                  
+## [22] "make-tissue-gene-expression.R"       
+## [23] "make-trump_tweets.R"                 
+## [24] "make-weekly_us_contagious_diseases.R"
+## [25] "save-gapminder-example-csv.R"
+```
+
+```
+library(tidyverse)
+```
+```
+library(ggthemes)
+library(ggrepel)
+library(RColorBrewer)
+
+```
+
+
+```
+data("gapminder")
+str(gapminder)
+```
+
+```
+tibble [1,704 × 6] (S3: tbl_df/tbl/data.frame)
+ $ country  : Factor w/ 142 levels "Afghanistan",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ continent: Factor w/ 5 levels "Africa","Americas",..: 3 3 3 3 3 3 3 3 3 3 ...
+ $ year     : int [1:1704] 1952 1957 1962 1967 1972 1977 1982 1987 1992 1997 ...
+ $ lifeExp  : num [1:1704] 28.8 30.3 32 34 36.1 ...
+ $ pop      : int [1:1704] 8425333 9240934 10267083 11537966 13079460 14880372 12881816 13867957 16317921 22227415 ...
+ $ gdpPercap: num [1:1704] 779 821 853 836 740 ...
+ ```
+ 
+ 
+ 
+``` 
+west <- c("Western Europe","Northern Europe","Southern Europe",
+          "Northern America","Australia and New Zealand")
+
+plot1 <- gapminder %>%
+  mutate(new_region = case_when(region %in% west ~ "The West",region %in% c("Eastern Asia", "South-Eastern Asia") ~ "East Asia",region %in% c("Caribbean", "Central America", "South America") ~ "Latin America",continent == "Africa" & region != "Northern Africa" ~ "Sub-Saharan Africa",TRUE ~ "Others"))
+ 
+plot1 <- plot1 %>%
+  mutate(new_region = factor(new_region, levels = rev(c("Others", "Latin America", "East Asia","Sub-Saharan Africa", "The West"))))
+```
+
+```
+plot1 %>% 
+  filter(year%in%c(1960,1980, 2000) & !is.na(new_region) &
+         !is.na(life_expectancy) & !is.na(population) & !is.na(gdp)) %>%
+  mutate(GDPpercapita = gdp/population/100) %>%
+  ggplot( aes(GDPpercapita, y=life_expectancy, col = new_region, size = GDPpercapita)) +
+  geom_point(alpha = 0.8) +
+  
+  guides(size=FALSE) +
+  theme(plot.title = element_text("Life Expectancy vs GDP Per Capita Around the World"), legend.title = element_blank()) +
+  coord_cartesian(ylim = c(40, 90)) +
+  coord_cartesian(xlim = c(0, 600)) +
+  xlab("GDP Per Capita (per 100 USD)") +
+  ylab("Life Expectancy (years)") +
+  geom_text(aes(x=100, y=85, label=year), cex=8, color="grey") +
+  facet_grid(. ~ year) +
+  theme(strip.background = element_blank(),
+        strip.text.x = element_blank(),
+        strip.text.y = element_blank(),
+   legend.position = "bottom") 
+   ```
+
+
+![__The Plot of GDP per capita(per 100 USD)__](/Users/nilosreesengupta/Desktop/LIFE EXPECTANCY VS. GDP PER CAPITA/gdp.png)
